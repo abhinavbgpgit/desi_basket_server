@@ -11,6 +11,12 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+/* ================== ADDED (no existing code changed) ================== */
+const cors = require("cors");
+app.use(cors());
+app.use("/uploads", express.static("uploads"));
+/* ===================================================================== */
+
 // Database connection
 const connectDB = async () => {
   try {
@@ -40,6 +46,10 @@ app.get('/health', (req, res) => {
     database: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected' 
   });
 });
+
+/* ================== api  ROUTES ================== */
+app.use("/api/profile", require("./routes/profile.routes"));
+/* ================================================== */
 
 // Start server
 const PORT = process.env.PORT || 5000;
