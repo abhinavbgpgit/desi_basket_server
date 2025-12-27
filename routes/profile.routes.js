@@ -1,15 +1,16 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const auth = require("../middleware/auth.middleware");
-const {
-  saveProfileStep,
-  getProfile
-} = require("../controllers/profile.controller");
 
-/* Save step-wise profile */
+import auth from "../middleware/auth.middleware.js";
+import {
+  saveProfileStep,
+  getProfile,
+} from "../controllers/profile.controller.js";
+
+// Save step-wise profile
 router.post("/save-step", auth, saveProfileStep);
 
-/* Get profile */
+// Get profile
 router.get("/", auth, getProfile);
 
-module.exports = router;
+export default router;
