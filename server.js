@@ -5,25 +5,41 @@ import cors from "cors";
 
 import connectCloudinary from "./config/cloudinary.js";
 import profileRoutes from "./routes/profile.routes.js";
-
 import authRoutes from "./routes/auth.routes.js";
 
-dotenv.config(); 
+dotenv.config();
 
 console.log("Cloudinary URL:", process.env.CLOUDINARY_URL);
 
 const app = express();
 
-// connect cloudinary
-connectCloudinary();
+/* =========================
+   CORS CONFIG (FIXED)
+========================= */
+app.use(
+  cors({
+    origin: "http://localhost:5173", // frontend (Vite)
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
 
-// Middleware
+/* =========================
+   MIDDLEWARES
+========================= */
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
 app.use("/uploads", express.static("uploads"));
 
-// Database connection
+/* =========================
+   CLOUDINARY
+========================= */
+connectCloudinary();
+
+/* =========================
+   DATABASE CONNECTION
+========================= */
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.db_url, {
@@ -37,19 +53,22 @@ const connectDB = async () => {
   }
 };
 
-// Connect DB
 connectDB();
 
-// Routes
+/* =========================
+   ROUTES
+========================= */
 app.get("/", (req, res) => {
   res.json({ message: "Desi Basket Server is running!" });
 });
 
-//authentication routes
+// Auth routes
 app.use("/api/auth", authRoutes);
 
+// Profile routes
+app.use("/api/profile", profileRoutes);
 
-//health routes
+// Health check
 app.get("/health", (req, res) => {
   res.json({
     status: "OK",
@@ -58,16 +77,17 @@ app.get("/health", (req, res) => {
   });
 });
 
-//profile route
-app.use("/api/profile", profileRoutes);
-
-// Start server
+/* =========================
+   SERVER START
+========================= */
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
 });
 
-// Handle unhandled promise rejections
+/* =========================
+   ERROR HANDLING
+========================= */
 process.on("unhandledRejection", (err) => {
   console.error("Unhandled Rejection:", err.message);
   process.exit(1);
