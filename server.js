@@ -16,14 +16,7 @@ const app = express();
 /* =========================
    CORS CONFIG (FIXED)
 ========================= */
-app.use(
-  cors({
-    origin: "http://localhost:5173", // frontend (Vite)
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-  })
-);
+app.use(cors()); // ✅ all origins allowed
 
 /* =========================
    MIDDLEWARES
