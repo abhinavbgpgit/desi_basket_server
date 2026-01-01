@@ -1,13 +1,13 @@
-// auth.controller.js
+// controllers/auth.controller.js
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 // Strong password regex
-// At least 8 characters, 1 uppercase, 1 lowercase, 1 number, 1 special character
 const strongPasswordRegex =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
+// ===== REGISTER =====
 export const register = async (req, res) => {
   try {
     const { mobile, password, role } = req.body;
@@ -16,7 +16,6 @@ export const register = async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    // Strong password validation
     if (!strongPasswordRegex.test(password)) {
       return res.status(400).json({
         message:
@@ -37,6 +36,22 @@ export const register = async (req, res) => {
       role,
     });
 
+    // ===== COOKIE after register =====
+    const token = jwt.sign(
+      { userId: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "3h" }
+    );
+
+    const isProd = process.env.NODE_ENV === "production";
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax",
+      maxAge: 3 * 60 * 60 * 1000, // 3 hours
+    });
+
     res.status(201).json({
       message: "Registered successfully",
       role: user.role,
@@ -46,6 +61,7 @@ export const register = async (req, res) => {
   }
 };
 
+// ===== LOGIN =====
 export const login = async (req, res) => {
   try {
     const { mobile, password } = req.body;
@@ -67,9 +83,18 @@ export const login = async (req, res) => {
       { expiresIn: "3h" }
     );
 
+    const isProd = process.env.NODE_ENV === "production";
+
+    // ===== COOKIE =====
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax",
+      maxAge: 3 * 60 * 60 * 1000, // 3 hours
+    });
+
     res.json({
       message: "Login successful",
-      token,
       role: user.role,
     });
   } catch (err) {
