@@ -1,4 +1,3 @@
-// server.js
 import express from "express";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
@@ -10,8 +9,6 @@ import profileRoutes from "./routes/profile.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 
 dotenv.config();
-
-console.log("Cloudinary URL:", process.env.CLOUDINARY_URL);
 
 const app = express();
 
@@ -27,20 +24,25 @@ const allowedOrigins = [
   "https://desi-kisan-live.vercel.app"     // deployed frontend
 ];
 
-app.use(
-  cors({
-    origin: function(origin, callback){
-      if(!origin) return callback(null, true); // Postman, mobile apps etc.
-      if(allowedOrigins.indexOf(origin) === -1){
-        return callback(new Error(`CORS blocked: ${origin}`), false);
-      }
-      return callback(null, true);
-    },
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true, // cookies/session allow
-  })
-);
+app.use(cors({
+  origin: function(origin, callback){
+    if(!origin) return callback(null, true); // Postman, mobile apps etc.
+    if(allowedOrigins.indexOf(origin) === -1){
+      return callback(new Error(`CORS blocked: ${origin}`), false);
+    }
+    return callback(null, true);
+  },
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true, // cookies/session allow
+}));
+
+// OPTIONS preflight handle
+app.options("*", cors({
+  origin: allowedOrigins,
+  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
+  credentials: true
+}));
 
 // ======= CLOUDINARY =======
 connectCloudinary();
@@ -61,13 +63,18 @@ const connectDB = async () => {
 connectDB();
 
 // ======= ROUTES =======
+// Home
 app.get("/", (req, res) => {
   res.json({ message: "Desi Basket Server is running!" });
 });
 
-app.use("/", authRoutes);
+// Auth routes (register/login)
+app.use("/", authRoutes);  // auth.routes.js में /api/register और /api/login होना चाहिए
+
+// Profile routes
 app.use("/api/profile", profileRoutes);
 
+// Health check
 app.get("/health", (req, res) => {
   res.json({
     status: "OK",
