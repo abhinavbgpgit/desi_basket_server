@@ -65,7 +65,7 @@ app.get("/", (req, res) => {
   res.json({ message: "Desi Basket Server is running!" });
 });
 
-app.use("/api/auth", authRoutes);
+app.use("/", authRoutes);
 app.use("/api/profile", profileRoutes);
 
 app.get("/health", (req, res) => {
