@@ -21,7 +21,7 @@ app.use("/uploads", express.static("uploads"));
 // ======= CORS CONFIG (FIXED) =======
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://desi-kisan-live.vercel.app"   // ✅ tumhara frontend origin
+  "https://desi-kisan-live.vercel.app"   //frontend origin
 ];
 
 app.use(
