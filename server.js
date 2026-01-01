@@ -6,6 +6,8 @@ import cors from "cors";
 import connectCloudinary from "./config/cloudinary.js";
 import profileRoutes from "./routes/profile.routes.js";
 
+import authRoutes from "./routes/auth.routes.js";
+
 dotenv.config(); 
 
 console.log("Cloudinary URL:", process.env.CLOUDINARY_URL);
@@ -43,6 +45,11 @@ app.get("/", (req, res) => {
   res.json({ message: "Desi Basket Server is running!" });
 });
 
+//authentication routes
+app.use("/api/auth", authRoutes);
+
+
+//health routes
 app.get("/health", (req, res) => {
   res.json({
     status: "OK",
@@ -51,6 +58,7 @@ app.get("/health", (req, res) => {
   });
 });
 
+//profile route
 app.use("/api/profile", profileRoutes);
 
 // Start server
