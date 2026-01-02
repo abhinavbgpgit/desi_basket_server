@@ -7,6 +7,7 @@ import cookieParser from "cookie-parser";
 import connectCloudinary from "./config/cloudinary.js";
 import profileRoutes from "./routes/profile.routes.js";
 import authRoutes from "./routes/auth.routes.js";
+import corsMiddleware from "./middleware/corsMiddleware.js";
 
 dotenv.config();
 
@@ -18,31 +19,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static("uploads"));
 
-// ======= CORS CONFIG =======
-const allowedOrigins = [
-  "http://localhost:5173",                  // local frontend
-  "https://desi-kisan-live.vercel.app"     // deployed frontend
-];
+app.use(cors());
+app.use(corsMiddleware); 
 
-app.use(cors({
-  origin: function(origin, callback){
-    if(!origin) return callback(null, true); // Postman, mobile apps etc.
-    if(allowedOrigins.indexOf(origin) === -1){
-      return callback(new Error(`CORS blocked: ${origin}`), false);
-    }
-    return callback(null, true);
-  },
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true, // cookies/session allow
-}));
 
-// OPTIONS preflight handle
-app.options("*", cors({
-  origin: allowedOrigins,
-  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
-  credentials: true
-}));
 
 // ======= CLOUDINARY =======
 connectCloudinary();
@@ -63,13 +43,14 @@ const connectDB = async () => {
 connectDB();
 
 // ======= ROUTES =======
+
 // Home
 app.get("/", (req, res) => {
-  res.json({ message: "Desi Basket Server is running!" });
+  res.json({ message: "Desi Basket Server is running 🚀🗺️!" });
 });
 
-// Auth routes (register/login)
-app.use("/", authRoutes);  // auth.routes.js में /api/register और /api/login होना चाहिए
+// Auth routes (/api/register , /api/login)
+app.use("/api", authRoutes);
 
 // Profile routes
 app.use("/api/profile", profileRoutes);
@@ -78,7 +59,8 @@ app.use("/api/profile", profileRoutes);
 app.get("/health", (req, res) => {
   res.json({
     status: "OK",
-    database: mongoose.connection.readyState === 1 ? "Connected" : "Disconnected",
+    database:
+      mongoose.connection.readyState === 1 ? "Connected" : "Disconnected",
   });
 });
 
