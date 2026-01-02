@@ -46,7 +46,7 @@ connectDB();
 
 // Home
 app.get("/", (req, res) => {
-  res.json({ message: "Desi Basket Server is running 🚀!" });
+  res.json({ message: "Desi Basket Server is running 🚀🗺️!" });
 });
 
 // Auth routes (/api/register , /api/login)
