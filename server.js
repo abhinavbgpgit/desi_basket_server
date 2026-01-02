@@ -18,20 +18,29 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static("uploads"));
 
-// ======= CORS CONFIG (FIXED) =======
+// ======= CORS CONFIG =======
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://desi-kisan-live.vercel.app"   //frontend origin
+  "https://desi-kisan-live.vercel.app",
 ];
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(null, false);
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
 
 // ======= CLOUDINARY =======
 connectCloudinary();
